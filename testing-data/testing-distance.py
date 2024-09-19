@@ -57,63 +57,74 @@ fw_knn_model.fit(fw_features[['Age', 'Goals']])
 # ฟังก์ชันสำหรับการค้นหานักเตะที่ใกล้เคียงตามอายุและจำนวนประตู
 #-----------------finding player-------------------------------
 
-def gk_find(age, Clean_sheets, Saves, k=7):
-    gk_input_player = [[age, Clean_sheets, Saves]]
+# ฟังก์ชันแสดงระยะทางระหว่างผู้เล่นที่ใกล้เคียงกันในตำแหน่ง Goalkeeper
+def gk_find(age, clean_sheets, saves, k=7):
+    gk_input_player = [[age, clean_sheets, saves]]
     distances, indices = gk_knn_model.kneighbors(gk_input_player)
     gk_similar_players = gk_features.iloc[indices[0]]
+    
+    # แสดงระยะทาง (distance) กับผู้เล่นที่คล้ายกัน
+    print("GK Distances between input player and similar players:", distances[0])
+    
     return gk_similar_players[['Name', 'Age', 'Club', 'Saves', 'Clean sheets']]
 
-def df_find(age, Tackles, Clean_sheets, k=7):
-    df_input_player = [[age, Tackles, Clean_sheets]]
+# ฟังก์ชันแสดงระยะทางสำหรับตำแหน่งอื่น ๆ เช่นเดียวกัน
+def df_find(age, tackles, clean_sheets, k=7):
+    df_input_player = [[age, tackles, clean_sheets]]
     distances, indices = df_knn_model.kneighbors(df_input_player)
     df_similar_players = df_features.iloc[indices[0]]
+    
+    # แสดงระยะทาง
+    print("DF Distances between input player and similar players:", distances[0])
+    
     return df_similar_players[['Name', 'Age', 'Club', 'Tackles']]
 
-def mf_find(age, Assists, k=7):
-    mf_input_player = [[age, Assists]]
+def mf_find(age, assists, k=7):
+    mf_input_player = [[age, assists]]
     distances, indices = mf_knn_model.kneighbors(mf_input_player)
     mf_similar_players = mf_features.iloc[indices[0]]
+    
+    # แสดงระยะทาง
+    print("MF Distances between input player and similar players:", distances[0])
+    
     return mf_similar_players[['Name', 'Age', 'Club', 'Assists']]
 
-def fw_find(age, goal, k=7):
-    fw_input_player = [[age, goal]]
+def fw_find(age, goals, k=7):
+    fw_input_player = [[age, goals]]
     distances, indices = fw_knn_model.kneighbors(fw_input_player)
     fw_similar_players = fw_features.iloc[indices[0]]
+    
+    # แสดงระยะทาง
+    print("FW Distances between input player and similar players:", distances[0])
+    
     return fw_similar_players[['Name', 'Age', 'Club', 'Goals']]
 
-#-----------------example player-------------------------------
-
-# GK input
+# ตัวอย่างการใช้งาน: แสดงระยะทางระหว่างนักเตะที่ใกล้เคียงกัน
 age_gk = 27
 clean_sheet_gk = 15
 saves = 70
 similar_goalkeeper = gk_find(age_gk, clean_sheet_gk, saves)
 
-# DF input
 age_df = 28
 tackle_df = 150
 clean_sheet_df = 15
 similar_defender = df_find(age_df, tackle_df, clean_sheet_df)
 
-# MF input
 age_mf = 28
 assists_mf = 30
 similar_midfielder = mf_find(age_mf, assists_mf)
 
-# FW input
 age_fw = 24
 goal_fw = 50
 similar_forwards = fw_find(age_fw, goal_fw)
 
 # แสดงผลลัพธ์
-print("---------------------------------------------------------")
-print(similar_goalkeeper)
-print("---------------------------------------------------------")
-print(similar_defender)
-print("---------------------------------------------------------")
-print(similar_midfielder)
-print("---------------------------------------------------------")
-print(similar_forwards)
-print("---------------------------------------------------------")
-
-
+#print("---------------------------------------------------------")
+#print(similar_goalkeeper)
+#print("---------------------------------------------------------")
+#print(similar_defender)
+#print("---------------------------------------------------------")
+#print(similar_midfielder)
+#print("---------------------------------------------------------")
+#print(similar_forwards)
+#print("---------------------------------------------------------")

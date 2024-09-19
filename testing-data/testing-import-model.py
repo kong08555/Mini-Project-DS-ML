@@ -1,10 +1,10 @@
+from model.KNN import train_knn_models
 import pandas as pd
-from sklearn.neighbors import NearestNeighbors
 
-# 1. โหลดข้อมูลจากไฟล์
+# โหลดข้อมูลอีกครั้งเพื่อแสดงผลลัพธ์
 data = pd.read_csv('dataset/EPL-players-stats-2020.csv')
 
-# 2. สร้างคอลัมน์ใหม่ 'Position Group' ให้มีแค่ 4 ตำแหน่งหลัก
+# ฟังก์ชันจัดหมวดหมู่ตำแหน่งนักเตะ
 def categorize_position(position):
     if position == 'Goalkeeper':
         return 'Goalkeeper'
@@ -15,68 +15,47 @@ def categorize_position(position):
     elif position == 'Forward':
         return 'Forward'
     else:
-        return 'Unknown'  # ถ้ามีตำแหน่งที่ไม่อยู่ใน 4 ตำแหน่งหลัก
+        return 'Unknown'
 
-# 3. ใช้ฟังก์ชัน categorize_position กับคอลัมน์ 'Position'
+# สร้างคอลัมน์ใหม่ 'Position Group'
 data['Position Group'] = data['Position'].apply(categorize_position)
 
-# 4. กรองข้อมูลเฉพาะนักเตะในแต่ละตำแหน่ง
+# กรองข้อมูลเฉพาะนักเตะในแต่ละตำแหน่ง
 gk_data = data[data['Position Group'] == 'Goalkeeper']
 df_data = data[data['Position Group'] == 'Defender']
 mf_data = data[data['Position Group'] == 'Midfielder']
 fw_data = data[data['Position Group'] == 'Forward']
 
 # เลือกฟีเจอร์ที่เกี่ยวข้อง
-gk_features = gk_data[['Name', 'Club', 'Position', 'Age', 'Clean sheets', 'Saves']]
-df_features = df_data[['Name', 'Club', 'Position', 'Age', 'Tackles', 'Duels won', 'Clean sheets']]
-mf_features = mf_data[['Name', 'Club', 'Position', 'Age', 'Assists', 'Passes']]
-fw_features = fw_data[['Name', 'Club', 'Position', 'Age', 'Goals', 'Shots on target']]
+gk_features = gk_data[['Name', 'Club', 'Position', 'Age', 'Clean sheets', 'Saves']].fillna(0)
+df_features = df_data[['Name', 'Club', 'Position', 'Age', 'Tackles', 'Duels won', 'Clean sheets']].fillna(0)
+mf_features = mf_data[['Name', 'Club', 'Position', 'Age', 'Assists']].fillna(0)
+fw_features = fw_data[['Name', 'Club', 'Position', 'Age', 'Goals']].fillna(0)
 
-# แทนค่า NaN เป็น 0
-gk_features = gk_features.fillna(0)
-df_features = df_features.fillna(0)
-mf_features = mf_features.fillna(0)
-fw_features = fw_features.fillna(0)
+# เรียกโมเดลที่ผ่านการฝึกแล้วจาก knn_models.py
+gk_knn_model, df_knn_model, mf_knn_model, fw_knn_model = train_knn_models()
 
-# 5. กำหนดจำนวนเพื่อนบ้าน (k) ที่ต้องการค้นหา
-k = 7
-
-# Train โมเดล KNN สำหรับแต่ละตำแหน่ง
-gk_knn_model = NearestNeighbors(n_neighbors=k)
-gk_knn_model.fit(gk_features[['Age', 'Clean sheets', 'Saves']])
-
-df_knn_model = NearestNeighbors(n_neighbors=k)
-df_knn_model.fit(df_features[['Age', 'Tackles', 'Clean sheets']])
-
-mf_knn_model = NearestNeighbors(n_neighbors=k)
-mf_knn_model.fit(mf_features[['Age', 'Assists']])
-
-fw_knn_model = NearestNeighbors(n_neighbors=k)
-fw_knn_model.fit(fw_features[['Age', 'Goals']])
-
-# ฟังก์ชันสำหรับการค้นหานักเตะที่ใกล้เคียงตามอายุและจำนวนประตู
-#-----------------finding player-------------------------------
-
-def gk_find(age, Clean_sheets, Saves, k=7):
-    gk_input_player = [[age, Clean_sheets, Saves]]
+# ฟังก์ชันค้นหานักเตะที่ใกล้เคียงตามอายุและสถิติ
+def gk_find(age, clean_sheets, saves, k=7):
+    gk_input_player = [[age, clean_sheets, saves]]
     distances, indices = gk_knn_model.kneighbors(gk_input_player)
     gk_similar_players = gk_features.iloc[indices[0]]
     return gk_similar_players[['Name', 'Age', 'Club', 'Saves', 'Clean sheets']]
 
-def df_find(age, Tackles, Clean_sheets, k=7):
-    df_input_player = [[age, Tackles, Clean_sheets]]
+def df_find(age, tackles, clean_sheets, k=7):
+    df_input_player = [[age, tackles, clean_sheets]]
     distances, indices = df_knn_model.kneighbors(df_input_player)
     df_similar_players = df_features.iloc[indices[0]]
     return df_similar_players[['Name', 'Age', 'Club', 'Tackles']]
 
-def mf_find(age, Assists, k=7):
-    mf_input_player = [[age, Assists]]
+def mf_find(age, assists, k=7):
+    mf_input_player = [[age, assists]]
     distances, indices = mf_knn_model.kneighbors(mf_input_player)
     mf_similar_players = mf_features.iloc[indices[0]]
     return mf_similar_players[['Name', 'Age', 'Club', 'Assists']]
 
-def fw_find(age, goal, k=7):
-    fw_input_player = [[age, goal]]
+def fw_find(age, goals, k=7):
+    fw_input_player = [[age, goals]]
     distances, indices = fw_knn_model.kneighbors(fw_input_player)
     fw_similar_players = fw_features.iloc[indices[0]]
     return fw_similar_players[['Name', 'Age', 'Club', 'Goals']]
@@ -115,5 +94,3 @@ print(similar_midfielder)
 print("---------------------------------------------------------")
 print(similar_forwards)
 print("---------------------------------------------------------")
-
-

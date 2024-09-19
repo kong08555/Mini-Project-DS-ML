@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Similar Players</title>
+</head>
+<body>
+    <h1>Find Similar Players</h1>
+    <form method="POST">
+        <label for="position">Position:</label>
+        <select id="position" name="position">
+            <option value="Goalkeeper">Goalkeeper</option>
+            <option value="Defender">Defender</option>
+            <option value="Midfielder">Midfielder</option>
+            <option value="Forward">Forward</option>
+        </select>
+        <br>
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age">
+        <br>
+        <!-- ฟิลด์สำหรับตำแหน่งต่างๆ -->
+        <div id="goalkeeper_fields">
+            <label for="clean_sheets">Clean Sheets:</label>
+            <input type="number" id="clean_sheets" name="clean_sheets">
+            <br>
+            <label for="saves">Saves:</label>
+            <input type="number" id="saves" name="saves">
+            <br>
+        </div>
+        <div id="defender_fields">
+            <label for="tackles">Tackles:</label>
+            <input type="number" id="tackles" name="tackles">
+            <br>
+            <label for="clean_sheets">Clean Sheets:</label>
+            <input type="number" id="clean_sheets" name="clean_sheets">
+            <br>
+        </div>
+        <div id="midfielder_fields">
+            <label for="assists">Assists:</label>
+            <input type="number" id="assists" name="assists">
+            <br>
+        </div>
+        <div id="forward_fields">
+            <label for="goals">Goals:</label>
+            <input type="number" id="goals" name="goals">
+            <br>
+        </div>
+        <button type="submit">Find Similar Players</button>
+    </form>
+
+    {% if players %}
+        <h2>Similar Players</h2>
+        <ul>
+            {% for player in players %}
+            <li>{{ player['Name'] }} - {{ player['Age'] }} - {{ player['Club'] }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>
