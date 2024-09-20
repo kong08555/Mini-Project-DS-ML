@@ -35,15 +35,22 @@ fw_features = fw_data[['Appearances', 'Goals', 'Shots on target',
                        'Assists', 'Passes', 'Passes per match']]
 
 # สร้าง target label ตามเงื่อนไขที่คุณกำหนด
-def assign_role(row):
-    if row['Goals'] > 0.5 * row['Appearances'] or row['Shots on target'] > 0.5 * row['Appearances'] or row['Shooting accuracy %'] > 0.5:
-        return 'Striker'
-    elif row['Big Chances Created'] > 0.5 * row['Appearances'] or row['Crosses'] > 0.5 * row['Appearances'] or row['Assists'] > 0.5 * row['Appearances'] or row['Passes per match'] > 0.5:
-        return 'Winger'
+def assign_forward_role(row):
+    score_striker = (row['Goals'] / row['Appearances']) * 0.4 + (row['Shots on target'] / row['Appearances']) * 0.4 + (row['Shooting accuracy %']) * 0.2
+    score_winger = (row['Crosses'] / row['Appearances']) * 0.7 + (row['Assists'] / row['Appearances']) * 0.2 + (row['Big Chances Created'] / row['Appearances']) * 0.1
+    
+    if score_striker > score_winger:
+        return 'Striker', score_striker, score_winger
     else:
-        return 'Unknown'
+        return 'Winger', score_striker, score_winger
 
-fw_data['Role'] = fw_features.apply(assign_role, axis=1)
+# สร้างคอลัมน์สำหรับ Role และคะแนน
+fw_data[['Role', 'Striker Score', 'Winger Score']] = fw_features.apply(assign_forward_role, axis=1, result_type='expand')
+
+# คำนวณเปอร์เซ็นต์
+total_score = fw_data['Striker Score'] + fw_data['Winger Score']
+fw_data['Striker Probability (%)'] = (fw_data['Striker Score'] / total_score) * 100
+fw_data['Winger Probability (%)'] = (fw_data['Winger Score'] / total_score) * 100
 
 # กรองเฉพาะข้อมูลที่ไม่ใช่ 'Unknown'
 fw_data = fw_data[fw_data['Role'] != 'Unknown']
@@ -64,14 +71,20 @@ clf.fit(X_train, y_train)
 y_pred = clf.predict(X_test)
 
 # แสดงผลลัพธ์
-print("Accuracy:", accuracy_score(y_test, y_pred))
+#print("Accuracy:", accuracy_score(y_test, y_pred))
 print("Classification Report:\n", classification_report(y_test, y_pred))
 
-# แสดงข้อมูลที่ทำนายแล้ว
+# แสดงข้อมูลที่ทำนายแล้วพร้อมเปอร์เซ็นต์
 fw_data['Predicted Role'] = clf.predict(X)
 print(fw_data[['Name', 'Appearances', 'Goals', 'Shots on target', 
-               'Shooting accuracy %', 'Predicted Role']].head(50))
+               'Shooting accuracy %', 'Predicted Role', 
+               ]].head(60))
 
-print(fw_data[['Name', 'Appearances',  
-                       'Big Chances Created', 'Crosses', 
-                       'Assists', 'Passes', 'Passes per match']].head(50))
+print("---------------Accuracy------------------")
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("-----------------------------------------")
+#print(fw_data[['Name', 'Appearances',  
+#               'Big Chances Created', 'Crosses', 
+ #              'Assists', 'Passes', 'Passes per match']].head(50))
+
+#print(fw_data[['Name', 'Appearances','Striker Probability (%)', 'Winger Probability (%)']].head(50))

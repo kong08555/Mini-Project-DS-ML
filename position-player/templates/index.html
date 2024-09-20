@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Player Role Predictor</title>
+</head>
+<body>
+    <h1>พยากรณ์ตำแหน่งนักเตะ</h1>
+    
+    <form method="POST" action="/">
+        <label for="position">เลือกตำแหน่ง:</label>
+        <select name="position" id="position" required>
+            <option value="Defender">Defender</option>
+            <option value="Midfielder">Midfielder</option>
+            <option value="Forward">Forward</option>
+        </select>
+
+        <label for="player">เลือกนักเตะ:</label>
+        <select name="player" id="player" required>
+            <option value="" disabled selected>เลือกนักเตะ</option>
+            <!-- รายชื่อนักเตะจะถูกเพิ่มที่นี่โดย JavaScript -->
+        </select>
+
+        <input type="submit" value="พยากรณ์">
+    </form>
+
+    {% if result %}
+        <h2>ผลการพยากรณ์</h2>
+        <p>นักเตะที่เลือก: {{ selected_player }}</p>
+        <p>ตำแหน่งที่คาดการณ์: {{ predicted_role }}</p>
+    {% endif %}
+
+    <script>
+        const playersByPosition = {
+            'Defender': [],
+            'Midfielder': [],
+            'Forward': []
+        };
+
+        document.getElementById('position').addEventListener('change', function() {
+            const position = this.value;
+            const playerSelect = document.getElementById('player');
+            playerSelect.innerHTML = '<option value="" disabled selected>เลือกนักเตะ</option>'; // ล้างตัวเลือกก่อนหน้า
+
+            fetch(`/players/${position}`)
+                .then(response => response.json())
+                .then(players => {
+                    players.forEach(player => {
+                        const option = document.createElement('option');
+                        option.value = player;
+                        option.textContent = player;
+                        playerSelect.appendChild(option);
+                    });
+                });
+        });
+
+        // เริ่มแสดงนักเตะของตำแหน่งเริ่มต้น
+        document.getElementById('position').dispatchEvent(new Event('change'));
+    </script>
+</body>
+</html>
