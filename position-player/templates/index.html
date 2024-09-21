@@ -4,32 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Football Player Role Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>พยากรณ์ตำแหน่งนักเตะ</h1>
+    <h1>Player Role Prediction</h1>
     
     <form method="POST" action="/">
-        <label for="position">เลือกตำแหน่ง:</label>
+        <label for="position">Select Position:</label>
         <select name="position" id="position" required>
             <option value="Defender">Defender</option>
             <option value="Midfielder">Midfielder</option>
             <option value="Forward">Forward</option>
         </select>
 
-        <label for="player">เลือกนักเตะ:</label>
+        <label for="player">Select Player:</label>
         <select name="player" id="player" required>
             <option value="" disabled selected>เลือกนักเตะ</option>
             <!-- รายชื่อนักเตะจะถูกเพิ่มที่นี่โดย JavaScript -->
         </select>
 
-        <input type="submit" value="พยากรณ์">
+        <input type="submit" value="Predict">
     </form>
 
     {% if result %}
-        <h2>ผลการพยากรณ์</h2>
-        <p>นักเตะที่เลือก: {{ selected_player }}</p>
-        <p>ตำแหน่งที่คาดการณ์: {{ predicted_role }}</p>
+    <div class="player-info">
+        <span class="player-name">Player Name: {{ selected_player_name }}</span>
+        <span class="player-position">Position: {{ selected_position }}</span>
+        <span class="predicted-role">Role Predict: {{ predicted_role }}</span>
+    </div>
     {% endif %}
+
+
+    <img id="football-field" src="{{ url_for('static', filename='football_field.png') }}" alt="Football Field">
+    <canvas id="canvas" width="500" height="500"></canvas> 
 
     <script>
         const playersByPosition = {
@@ -57,6 +64,105 @@
 
         // เริ่มแสดงนักเตะของตำแหน่งเริ่มต้น
         document.getElementById('position').dispatchEvent(new Event('change'));
+
+        // วาดจุดหรือวงกลมใน canvas
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        //------------------------------------------------------------//
+        //-------------------------Position spot----------------------// 
+
+
+        function drawCircle(ctx, x, y, radius, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2, true);
+            ctx.fill();
+        }
+
+         const positions = {
+        'Striker': { x: 213, y: 155 },
+        'Left Winger': { x: 90, y: 205 },
+        'Attacking Midfielder': { x: 212, y: 245 },
+        'Right Winger': { x: 335, y: 205 },
+        'Right Defensive Midfield': { x: 270, y: 340 },
+        'Left Defensive Midfield': { x: 160, y: 340 },
+        'Left Centre Back': { x: 160, y: 460 },
+        'Right Centre Back': { x: 267, y: 460 },
+        'Right Wing Back': { x: 345, y: 420 },
+        'Left Wing Back': { x: 85, y: 420 }
+    };
+
+   
+    // ฟังก์ชันที่จะเปลี่ยนสีของวงกลมตาม role ที่ predict ได้
+    function highlightPosition(role) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // ล้าง canvas ก่อน
+
+        for (const pos in positions) {
+            if (positions.hasOwnProperty(pos)) {
+                let color = 'yellow'; 
+
+                 // เงื่อนไขสำหรับ Striker
+            if (role === 'Striker' && pos === 'Striker') {
+                color = 'red';
+            }
+
+            // เงื่อนไขสำหรับ Winger
+            else if (role === 'Winger' && (pos === 'Left Winger' || pos === 'Right Winger')) {
+                color = 'red';
+            }
+
+            // เงื่อนไขสำหรับ Attacking Midfielder
+            else if (role === 'Attacking Midfielder' && pos === 'Attacking Midfielder') {
+                color = 'red';
+            }
+
+            // เงื่อนไขสำหรับ Defensive Midfielder
+            else if (role === 'Defensive Midfielder' && (pos === 'Right Defensive Midfield' || pos === 'Left Defensive Midfield')) {
+                color = 'red';
+            }
+
+            // เงื่อนไขสำหรับ Centre Back
+            else if (role === 'Centre Back' && (pos === 'Left Centre Back' || pos === 'Right Centre Back')) {
+                color = 'red';
+            }
+
+            // เงื่อนไขสำหรับ Wing Back
+            else if (role === 'Wing Back' && (pos === 'Left Wing Back' || pos === 'Right Wing Back')) {
+                color = 'red';
+            }
+
+                drawCircle(ctx, positions[pos].x, positions[pos].y, 17, color);
+            }
+        }
+    }
+
+    // วาดวงกลมเริ่มต้นทุกตำแหน่งเป็นสีเหลือง
+    for (const pos in positions) {
+        if (positions.hasOwnProperty(pos)) {
+            drawCircle(ctx, positions[pos].x, positions[pos].y, 17, 'yellow');
+        }
+    }
+
+    // ตรวจสอบว่า role ที่ได้จากการพยากรณ์คืออะไรแล้วแสดงผลบน canvas
+    {% if result %}
+        highlightPosition("{{ predicted_role }}");
+    {% endif %}
+
+        // เรียกใช้ฟังก์ชัน drawCircle สำหรับตำแหน่งต่าง ๆ
+        //drawCircle(ctx, 243, 55, 17, 'yellow'); // Striker
+        //drawCircle(ctx, 120, 105, 17, 'yellow'); // Left Winger
+        //drawCircle(ctx, 242, 145, 17, 'yellow'); // Central Attack Midfielder
+        //drawCircle(ctx, 365, 105, 17, 'yellow'); // Right Winger
+        //drawCircle(ctx, 300, 240, 17, 'yellow'); // Right Defensive Midfield
+        //drawCircle(ctx, 190, 240, 17, 'yellow'); // Left Defensive Midfield
+        //drawCircle(ctx, 190, 360, 17, 'yellow'); // Left Centre Back
+        //drawCircle(ctx, 297, 360, 17, 'yellow'); // Right Centre Back
+        //drawCircle(ctx, 375, 320, 17, 'yellow'); // Right Wing Back
+        //drawCircle(ctx, 115, 320, 17, 'yellow'); // Left Wing Back
+
+        
+
     </script>
 </body>
 </html>

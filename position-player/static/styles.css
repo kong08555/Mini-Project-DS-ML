@@ -1,0 +1,87 @@
+/* styles.css */
+body {
+    position: relative; 
+    background-color: #f9e3d4;
+    margin: 0; /* ลบระยะห่างภายนอก */
+    font-family: 'Arial', sans-serif;/* ช่วยให้สามารถจัดตำแหน่งรูปภาพได้ */
+}
+
+#football-field {
+    position: absolute; /* ทำให้รูปภาพสามารถเลื่อนได้ */
+    bottom: -300px; /* ระยะห่างจากด้านล่าง */
+    right: 60px; /* ระยะห่างจากด้านขวา */
+    width: 500px; /* ปรับขนาดของรูปภาพ */
+    transform: rotate(90deg); /* หมุนภาพ 90 องศา */
+}
+
+#canvas {
+    position: absolute;
+    bottom: -310px; /* ให้ตรงกับตำแหน่งรูปภาพ */
+    right: 30px; /* ให้ตรงกับตำแหน่งรูปภาพ */
+    pointer-events: none; /* ทำให้คลิกไม่สามารถไปยัง canvas */
+}
+
+h1 {
+    text-align: center; /* จัดตำแหน่งหัวเรื่องให้กลาง */
+}
+
+form {
+    position: relative; /* ทำให้ตำแหน่งสัมพันธ์กับตำแหน่งที่อยู่ */
+    top: 20px; /* ระยะห่างจากตำแหน่งเดิม */
+    left: 300px; /* ระยะห่างจากตำแหน่งเดิม */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* จัดให้อยู่กลาง */
+    margin-bottom: 20px;
+}
+
+select, input[type="submit"] {
+    margin: 5px; /* เพิ่มระยะห่างระหว่างฟิลด์ */
+    padding: 10px;
+    width: 200px; /* ปรับขนาดฟิลด์ */
+}
+
+h2 {
+    text-align: center; /* จัดตำแหน่งผลการพยากรณ์ให้กลาง */
+}
+
+.player-info {
+    position: absolute; /* ทำให้สามารถจัดตำแหน่งได้ */
+    top: 150px; /* ระยะห่างจากด้านบน */
+    left: 585px; /* ระยะห่างจากด้านซ้าย */
+}
+
+.player-name {
+    position: relative; 
+    top: 120px; 
+    left: -280px;
+    display: block; /* แสดงผลเป็นบรรทัดใหม่ */
+    font-size: 20px; /* ขนาดตัวอักษรใหญ่ขึ้นสำหรับชื่อผู้เล่น */
+    font-weight: bold; /* ทำให้ตัวอักษรเป็นตัวหนา */
+    color: #333; /* สีเข้มสำหรับชื่อผู้เล่น */
+}
+
+.player-position {
+    position: relative; 
+    top: 130px; 
+    left: -280px;
+    display: block; /* แสดงผลเป็นบรรทัดใหม่ */
+    font-size: 20px;
+    font-weight: bold; /* ขนาดตัวอักษรสำหรับบทบาทที่พยากรณ์ */
+    color: #333;
+}
+
+.predicted-role {
+     position: relative; 
+    top: -100px; 
+    left: 40px;
+    display: block; /* แสดงผลเป็นบรรทัดใหม่ */
+    font-size: 20px;
+    font-weight: bold; /* ขนาดตัวอักษรสำหรับบทบาทที่พยากรณ์ */
+    color: #8A1B2A; /* สีเลือดหมู */
+    background-color: rgba(255, 255, 255, 0.7); /* พื้นหลังสีขาวโปร่งใส */
+    padding: 10px; /* เพิ่มระยะห่างภายใน */
+    border: 2px solid #8A1B2A; /* เส้นกรอบสีเลือดหมู */
+    border-radius: 5px; /* มุมโค้ง */
+    margin-top: 5px; /* ระยะห่างด้านบน */
+}

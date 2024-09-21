@@ -42,7 +42,7 @@ def predict_defender(data):
                     (row['Aerial battles won'] / row['Appearances']) * 0.5
         wb_score = (row['Big Chances Created'] / row['Appearances']) * 1.0 + \
                     (row['Crosses'] / row['Appearances']) * 2.0
-        return 'Center back' if cb_score > wb_score else 'Wing back'
+        return 'Centre Back' if cb_score > wb_score else 'Wing Back'
 
     df_data['Role'] = df_data.apply(assign_defender_role, axis=1)
     X = df_data[['Appearances', 'Tackles', 'Interceptions', 
@@ -68,7 +68,7 @@ def predict_midfielder(data):
                     (row['Goals'] / row['Appearances']) * 0.7
         cdm_score = (row['Tackles'] / row['Appearances']) * 0.1 + \
                     (row['Recoveries'] / row['Appearances']) * 0.1
-        return 'CAM' if cam_score > cdm_score else 'CDM'
+        return 'Attacking Midfielder' if cam_score > cdm_score else 'Defensive Midfielder'
 
     mf_data['Role'] = mf_data.apply(assign_midfielder_role, axis=1)
     X = mf_data[['Appearances', 'Goals', 'Shots on target',
@@ -114,6 +114,7 @@ def home():
     if request.method == 'POST':
         position = request.form.get('position')
         player_name = request.form.get('player')
+        selected_position = position
 
         # ค้นหาและพยากรณ์ตามตำแหน่งที่เลือก
         if position == 'Defender':
@@ -124,10 +125,12 @@ def home():
             results = predict_forward(data)
 
         selected_player = results[results['Name'] == player_name]
+        selected_player_name = selected_player['Name'].values[0]
         predicted_role = selected_player['Predicted Role'].values[0]
         result = True  # เปลี่ยนแปลงเพื่อแสดงผลลัพธ์
 
-    return render_template('index.html', result=result, selected_player=selected_player, predicted_role=predicted_role)
+    return render_template('index.html', result=result, selected_player_name=selected_player_name, 
+                           predicted_role=predicted_role, selected_position=selected_position)
 
 if __name__ == '__main__':
     app.run(debug=True)
