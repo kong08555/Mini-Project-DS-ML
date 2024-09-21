@@ -108,8 +108,9 @@ def predict_forward(data):
 @app.route('/', methods=['GET', 'POST'])
 def home():
     result = None
-    selected_player = None
-    predicted_role = None
+    selected_player_name = ""  # กำหนดค่าเริ่มต้น
+    selected_position = ""      # กำหนดค่าเริ่มต้น
+    predicted_role = ""         # กำหนดค่าเริ่มต้น
 
     if request.method == 'POST':
         position = request.form.get('position')
@@ -125,9 +126,14 @@ def home():
             results = predict_forward(data)
 
         selected_player = results[results['Name'] == player_name]
-        selected_player_name = selected_player['Name'].values[0]
-        predicted_role = selected_player['Predicted Role'].values[0]
-        result = True  # เปลี่ยนแปลงเพื่อแสดงผลลัพธ์
+        
+        # ตรวจสอบว่ามีผู้เล่นที่ถูกเลือกหรือไม่
+        if not selected_player.empty:
+            selected_player_name = selected_player['Name'].values[0]
+            predicted_role = selected_player['Predicted Role'].values[0]
+            result = True  # เปลี่ยนแปลงเพื่อแสดงผลลัพธ์
+        else:
+            result = False  # ถ้าไม่พบผู้เล่น
 
     return render_template('index.html', result=result, selected_player_name=selected_player_name, 
                            predicted_role=predicted_role, selected_position=selected_position)
