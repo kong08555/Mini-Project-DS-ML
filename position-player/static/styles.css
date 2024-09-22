@@ -74,7 +74,7 @@ h2 {
 .predicted-role {
      position: relative; 
     top: -100px; 
-    left: 40px;
+    left: 15px;
     display: block; /* แสดงผลเป็นบรรทัดใหม่ */
     font-size: 20px;
     font-weight: bold; /* ขนาดตัวอักษรสำหรับบทบาทที่พยากรณ์ */
